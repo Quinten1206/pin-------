@@ -1,0 +1,5 @@
+#include "resource.h"
+
+IDI_APP_ICON    ICON    "../assets/app.ico"
+IDC_PIN_CURSOR  CURSOR  "../assets/pin.cur"
+// IDR_DLL_BIN     RCDATA  "DeskPinsHook.dll"  // Enabled in Task 4 (DLL Injector)
