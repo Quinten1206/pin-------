@@ -17,10 +17,17 @@ set(EXE_HEADERS
 
 add_executable(DeskPins ${EXE_SOURCES} ${EXE_HEADERS} resource.rc)
 
-# Embed the DLL binary as a post-build dependency
 add_dependencies(DeskPins DeskPinsHook)
 
-# Copy DLL next to EXE for resource compilation to find it
+# Pre-build: copy DLL to src/ so windres can embed it as RCDATA
+add_custom_command(TARGET DeskPins PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:DeskPinsHook>
+        ${CMAKE_CURRENT_SOURCE_DIR}/DeskPinsHook.dll
+    COMMENT "Copying DeskPinsHook.dll for resource embedding"
+)
+
+# Post-build: copy DLL alongside EXE for runtime extraction fallback
 add_custom_command(TARGET DeskPins POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:DeskPinsHook>
