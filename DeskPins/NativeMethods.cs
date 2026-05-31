@@ -2,138 +2,138 @@ using System.Runtime.InteropServices;
 
 namespace DeskPins;
 
-internal static partial class NativeMethods
+internal static class NativeMethods
 {
     // ── user32.dll ──────────────────────────────────────
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool SetWindowPos(
+    internal static extern bool SetWindowPos(
         IntPtr hWnd, IntPtr hWndInsertAfter,
         int X, int Y, int cx, int cy,
         uint uFlags);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
-    internal static partial IntPtr SetWindowsHookExW(
+    [DllImport("user32.dll", SetLastError = true)]
+    internal static extern IntPtr SetWindowsHookExW(
         int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool UnhookWindowsHookEx(IntPtr hhk);
+    internal static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
-    internal static partial IntPtr CallNextHookEx(
+    [DllImport("user32.dll", SetLastError = true)]
+    internal static extern IntPtr CallNextHookEx(
         IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
-    [LibraryImport("user32.dll")]
-    internal static partial IntPtr WindowFromPoint(POINT Point);
+    [DllImport("user32.dll")]
+    internal static extern IntPtr WindowFromPoint(POINT Point);
 
-    [LibraryImport("user32.dll")]
-    internal static partial uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+    [DllImport("user32.dll")]
+    internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool GetCursorPos(out POINT lpPoint);
+    internal static extern bool GetCursorPos(out POINT lpPoint);
 
-    [LibraryImport("user32.dll")]
-    internal static partial IntPtr LoadCursorFromFileW([MarshalAs(UnmanagedType.LPWStr)] string lpFileName);
+    [DllImport("user32.dll")]
+    internal static extern IntPtr LoadCursorFromFileW([MarshalAs(UnmanagedType.LPWStr)] string lpFileName);
 
-    [LibraryImport("user32.dll")]
-    internal static partial IntPtr SetCursor(IntPtr hCursor);
+    [DllImport("user32.dll")]
+    internal static extern IntPtr SetCursor(IntPtr hCursor);
 
-    [LibraryImport("user32.dll")]
-    internal static partial IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")]
+    internal static extern IntPtr GetForegroundWindow();
 
-    [LibraryImport("user32.dll")]
-    internal static partial uint GetWindowLongW(IntPtr hWnd, int nIndex);
+    [DllImport("user32.dll")]
+    internal static extern uint GetWindowLongW(IntPtr hWnd, int nIndex);
 
-    [LibraryImport("user32.dll")]
-    internal static partial uint GetDpiForWindow(IntPtr hwnd);
+    [DllImport("user32.dll")]
+    internal static extern uint GetDpiForWindow(IntPtr hwnd);
 
-    [LibraryImport("user32.dll")]
+    [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool SetProcessDpiAwarenessContext(int value);
+    internal static extern bool SetProcessDpiAwarenessContext(int value);
 
-    [LibraryImport("user32.dll")]
+    [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool DestroyCursor(IntPtr hCursor);
+    internal static extern bool DestroyCursor(IntPtr hCursor);
 
-    [LibraryImport("user32.dll")]
-    internal static partial uint RegisterWindowMessageW(
+    [DllImport("user32.dll")]
+    internal static extern uint RegisterWindowMessageW(
         [MarshalAs(UnmanagedType.LPWStr)] string lpString);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool PostMessageW(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+    internal static extern bool PostMessageW(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
-    [LibraryImport("user32.dll")]
-    internal static partial IntPtr SetWinEventHook(
+    [DllImport("user32.dll")]
+    internal static extern IntPtr SetWinEventHook(
         uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
         WinEventProc lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
 
-    [LibraryImport("user32.dll")]
+    [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool UnhookWinEvent(IntPtr hWinEventHook);
+    internal static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
     // ── shell32.dll ─────────────────────────────────────
 
-    [LibraryImport("shell32.dll")]
+    [DllImport("shell32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool Shell_NotifyIconW(uint dwMessage, ref NOTIFYICONDATAW lpData);
+    internal static extern bool Shell_NotifyIconW(uint dwMessage, ref NOTIFYICONDATAW lpData);
 
     // ── kernel32.dll ────────────────────────────────────
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial IntPtr OpenProcess(
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern IntPtr OpenProcess(
         uint dwDesiredAccess,
         [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
         uint dwProcessId);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial IntPtr VirtualAllocEx(
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern IntPtr VirtualAllocEx(
         IntPtr hProcess, IntPtr lpAddress, uint dwSize,
         uint flAllocationType, uint flProtect);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool VirtualFreeEx(
+    internal static extern bool VirtualFreeEx(
         IntPtr hProcess, IntPtr lpAddress, uint dwSize, uint dwFreeType);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool WriteProcessMemory(
+    internal static extern bool WriteProcessMemory(
         IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer,
         uint nSize, out uint lpNumberOfBytesWritten);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial IntPtr CreateRemoteThread(
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern IntPtr CreateRemoteThread(
         IntPtr hProcess, IntPtr lpThreadAttributes, uint dwStackSize,
         IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags,
         out uint lpThreadId);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial uint WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern uint WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool CloseHandle(IntPtr hObject);
+    internal static extern bool CloseHandle(IntPtr hObject);
 
-    [LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
-    internal static partial IntPtr GetModuleHandleW(string? lpModuleName);
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern IntPtr GetModuleHandleW(string? lpModuleName);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial IntPtr GetProcAddress(IntPtr hModule, IntPtr lpProcName);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern IntPtr GetProcAddress(IntPtr hModule, IntPtr lpProcName);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial IntPtr CreateMutexW(IntPtr lpMutexAttributes,
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern IntPtr CreateMutexW(IntPtr lpMutexAttributes,
         [MarshalAs(UnmanagedType.Bool)] bool bInitialOwner,
         [MarshalAs(UnmanagedType.LPWStr)] string lpName);
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial uint GetLastError();
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern uint GetLastError();
 
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    internal static partial uint ResumeThread(IntPtr hThread);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    internal static extern uint ResumeThread(IntPtr hThread);
 
     // ── Structs ─────────────────────────────────────────
 
