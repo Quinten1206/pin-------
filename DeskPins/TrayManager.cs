@@ -6,6 +6,7 @@ internal class TrayManager : IDisposable
     private readonly ContextMenuStrip _menu;
     private readonly ToolStripMenuItem _pinModeItem;
     private readonly ToolStripMenuItem _unpinAllItem;
+    private Bitmap? _trayIconBitmap;
 
     public event Action? PinModeRequested;
     public event Action? UnpinAllRequested;
@@ -57,16 +58,16 @@ internal class TrayManager : IDisposable
         _unpinAllItem.Enabled = count > 0;
     }
 
-    private static Icon LoadTrayIcon()
+    private Icon LoadTrayIcon()
     {
         // Create a simple 16x16 icon programmatically
-        var bmp = new Bitmap(16, 16);
-        using var g = Graphics.FromImage(bmp);
+        _trayIconBitmap = new Bitmap(16, 16);
+        using var g = Graphics.FromImage(_trayIconBitmap);
         g.Clear(Color.Transparent);
         using var brush = new SolidBrush(Color.FromArgb(220, 40, 40));
         g.FillEllipse(brush, 4, 1, 8, 8);   // pin head
         g.FillRectangle(brush, 7, 8, 2, 8);  // pin shaft
-        return Icon.FromHandle(bmp.GetHicon());
+        return Icon.FromHandle(_trayIconBitmap.GetHicon());
     }
 
     public void Dispose()
@@ -74,5 +75,6 @@ internal class TrayManager : IDisposable
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
         _menu.Dispose();
+        _trayIconBitmap?.Dispose();
     }
 }

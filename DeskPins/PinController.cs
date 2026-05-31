@@ -6,8 +6,11 @@ namespace DeskPins;
 internal class PinController : IDisposable
 {
     private IntPtr _mouseHook;
+    private IntPtr _keyboardHook;
     private IntPtr _pinCursor;
+    private Bitmap? _pinCursorBitmap;
     private HookProc? _mouseProc;
+    private HookProc? _keyboardProc;
     private bool _isActive;
 
     public event Action<IntPtr>? WindowClicked;
@@ -20,15 +23,15 @@ internal class PinController : IDisposable
         _isActive = true;
 
         // Create pin cursor programmatically
-        var bmp = new Bitmap(32, 32);
-        using var g = Graphics.FromImage(bmp);
+        _pinCursorBitmap = new Bitmap(32, 32);
+        using var g = Graphics.FromImage(_pinCursorBitmap);
         g.Clear(Color.Transparent);
         using var brush = new SolidBrush(Color.FromArgb(220, 40, 40));
         g.FillEllipse(brush, 10, 2, 12, 12);  // pin head
         g.FillRectangle(brush, 14, 12, 4, 18); // pin shaft
         g.FillRectangle(brush, 13, 13, 6, 2);  // cross bar
 
-        _pinCursor = bmp.GetHicon();
+        _pinCursor = _pinCursorBitmap.GetHicon();
 
         // Install low-level mouse hook
         _mouseProc = MouseHookProc;
@@ -40,6 +43,18 @@ internal class PinController : IDisposable
             _isActive = false;
             throw new InvalidOperationException(
                 $"Failed to install mouse hook. Error: {GetLastError()}");
+        }
+
+        // Install low-level keyboard hook for ESC cancellation
+        _keyboardProc = KeyboardHookProc;
+        _keyboardHook = SetWindowsHookExW(WH_KEYBOARD_LL, _keyboardProc,
+            GetModuleHandleW(null!), 0);
+
+        if (_keyboardHook == IntPtr.Zero)
+        {
+            // Keyboard hook failed; still use mouse-only mode
+            System.Diagnostics.Debug.WriteLine(
+                $"Keyboard hook failed. Error: {GetLastError()}");
         }
     }
 
@@ -54,10 +69,22 @@ internal class PinController : IDisposable
             _mouseHook = IntPtr.Zero;
         }
 
+        if (_keyboardHook != IntPtr.Zero)
+        {
+            UnhookWindowsHookEx(_keyboardHook);
+            _keyboardHook = IntPtr.Zero;
+        }
+
         if (_pinCursor != IntPtr.Zero)
         {
             DestroyCursor(_pinCursor);
             _pinCursor = IntPtr.Zero;
+        }
+
+        if (_pinCursorBitmap != null)
+        {
+            _pinCursorBitmap.Dispose();
+            _pinCursorBitmap = null;
         }
 
         Cursor.Current = Cursors.Arrow;
@@ -96,6 +123,25 @@ internal class PinController : IDisposable
         }
 
         return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+    }
+
+    private IntPtr KeyboardHookProc(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && _isActive)
+        {
+            uint msg = (uint)wParam;
+            if (msg == 0x0100 || msg == 0x0104) // WM_KEYDOWN or WM_SYSKEYDOWN
+            {
+                int vkCode = Marshal.ReadInt32(lParam, 0);
+                if (vkCode == 0x1B) // VK_ESCAPE
+                {
+                    ExitPinMode();
+                    return (IntPtr)1; // Swallow this key
+                }
+            }
+        }
+
+        return CallNextHookEx(_keyboardHook, nCode, wParam, lParam);
     }
 
     private static IntPtr GetAncestor(IntPtr hwnd)

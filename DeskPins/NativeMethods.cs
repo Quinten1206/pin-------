@@ -133,6 +133,17 @@ internal static class NativeMethods
     internal static extern uint GetLastError();
 
     [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool GetExitCodeThread(IntPtr hThread, out uint lpExitCode);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    internal static extern IntPtr LoadLibraryW(string lpFileName);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool FreeLibrary(IntPtr hModule);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
     internal static extern uint ResumeThread(IntPtr hThread);
 
     // ── Structs ─────────────────────────────────────────

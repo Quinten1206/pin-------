@@ -116,11 +116,7 @@ static LRESULT CALLBACK SubclassProc(
             {
                 SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                RemoveWindowSubclass(hWnd, SubclassProc, uIdSubclass);
-                if (g_hPinIcon) { DestroyIcon(g_hPinIcon); g_hPinIcon = nullptr; }
-                if (g_timerId) { KillTimer(nullptr, g_timerId); g_timerId = 0; }
-                FreeLibraryAndExitThread(
-                    GetModuleHandleW(L"DeskPinsHook.dll"), 0);
+                // Heartbeat will detect TOPMOST gone and clean up
                 return 0;
             }
         }
@@ -131,7 +127,7 @@ static LRESULT CALLBACK SubclassProc(
         RemoveWindowSubclass(hWnd, SubclassProc, uIdSubclass);
         if (g_hPinIcon) { DestroyIcon(g_hPinIcon); g_hPinIcon = nullptr; }
         if (g_timerId) { KillTimer(nullptr, g_timerId); g_timerId = 0; }
-        FreeLibraryAndExitThread(GetModuleHandleW(L"DeskPinsHook.dll"), 0);
+        // DLL stays loaded harmlessly; process is dying anyway
         return 0;
     }
 

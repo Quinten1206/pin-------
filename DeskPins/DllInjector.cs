@@ -80,9 +80,10 @@ internal class DllInjector
                 (uint)dllPathBytes.Length, out _);
 
             // Step 4: Create remote thread calling LoadLibraryW
+            IntPtr pLoadLibraryName = Marshal.StringToHGlobalAnsi("LoadLibraryW");
             IntPtr pLoadLibrary = GetProcAddress(
-                GetModuleHandleW("kernel32.dll"),
-                Marshal.StringToHGlobalAnsi("LoadLibraryW"));
+                GetModuleHandleW("kernel32.dll"), pLoadLibraryName);
+            Marshal.FreeHGlobal(pLoadLibraryName);
 
             IntPtr hRemoteThread = CreateRemoteThread(hProcess, IntPtr.Zero, 0,
                 pLoadLibrary, pRemoteMem, 0, out _);
@@ -95,8 +96,37 @@ internal class DllInjector
 
             // Wait for DLL to load
             WaitForSingleObject(hRemoteThread, 5000);
+
+            // Get the remote DLL base address (LoadLibraryW return value)
+            GetExitCodeThread(hRemoteThread, out uint remoteModuleBase);
             CloseHandle(hRemoteThread);
             VirtualFreeEx(hProcess, pRemoteMem, 0, MEM_RELEASE);
+
+            if (remoteModuleBase != 0)
+            {
+                // Load DLL locally to find InstallHook offset
+                IntPtr hLocalDll = LoadLibraryW(_dllPath);
+                if (hLocalDll != IntPtr.Zero)
+                {
+                    IntPtr pName = Marshal.StringToHGlobalAnsi("InstallHook");
+                    IntPtr pInstallHookLocal = GetProcAddress(hLocalDll, pName);
+                    Marshal.FreeHGlobal(pName);
+
+                    long offset = pInstallHookLocal.ToInt64() - hLocalDll.ToInt64();
+                    FreeLibrary(hLocalDll);
+
+                    IntPtr pInstallHookRemote = (IntPtr)((long)remoteModuleBase + offset);
+
+                    // Call InstallHook(hwnd) in target process
+                    IntPtr hHookThread = CreateRemoteThread(hProcess, IntPtr.Zero, 0,
+                        pInstallHookRemote, hwnd, 0, out _);
+                    if (hHookThread != IntPtr.Zero)
+                    {
+                        WaitForSingleObject(hHookThread, 5000);
+                        CloseHandle(hHookThread);
+                    }
+                }
+            }
 
             return true;
         }
