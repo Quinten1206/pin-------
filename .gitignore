@@ -1,2 +1,31 @@
+# .NET Build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+
+# Allow specific files
+!DeskPins/Resources/DeskPinsHook.dll
+
+# CMake / Native build artifacts
 build/
-src/DeskPinsHook.dll
+HookDLL/build/
+HookDLL/*.a
+HookDLL/*.lib
+
+# Publish output
+publish/
+
+# IDE
+.vs/
+.vscode/
+*.swp
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
